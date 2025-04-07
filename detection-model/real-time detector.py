@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-app.py
+real-time detector.py
 
 A simple script for real-time fall detection on an edge device (e.g. Raspberry Pi).
 It loads a local YOLOv5 model (yolov5s.pt) for person detection and a quantized TFLite model
@@ -17,7 +17,6 @@ import os
 import certifi
 import time
 
-# Set SSL certificate file (if needed)
 os.environ['SSL_CERT_FILE'] = certifi.where()
 
 # -------------------------------
@@ -65,7 +64,7 @@ def load_yolo_model(pt_path):
     """
     Loads YOLOv5 from a local .pt file using torch.hub.
     """
-    # Load local custom model (avoid re-downloading)
+    # Load local custom model 
     model = torch.hub.load('ultralytics/yolov5', 'custom', path=pt_path, force_reload=False)
     model.classes = [0]  # Restrict detections to the "person" class
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -76,15 +75,12 @@ def load_yolo_model(pt_path):
 # Main Real-Time Detection Loop
 # -------------------------------
 def main():
-    # Paths to local TFLite and YOLOv5 model files (update these paths as needed)
     tflite_model_path = "Fall-detector-lite.tflite"
     yolov5_pt_path = "yolov5s.pt"
 
-    # Load TFLite model for fall detection
     interpreter, input_details, output_details = load_tflite_model(tflite_model_path)
     pref_size = (128, 128)
 
-    # Load YOLOv5 model for person detection from the local .pt file
     yolo_model = load_yolo_model(yolov5_pt_path)
 
     # Create folder to save fall capture images
@@ -92,7 +88,6 @@ def main():
     if not os.path.exists(capture_dir):
         os.makedirs(capture_dir)
 
-    # Open the camera
     cap = cv2.VideoCapture(0)
     if not cap.isOpened():
         print("Error: Unable to open camera.")
@@ -113,13 +108,12 @@ def main():
         frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         pil_img = Image.fromarray(frame_rgb)
         
-        # Run YOLOv5 detection; using size=640 for detection (adjust as needed)
+        # Run YOLOv5 detection; using size=640 for detection
         results = yolo_model(pil_img, size=640)
         df = results.pandas().xyxy[0]
         fall_detected_in_frame = False
         fall_crops = []  # To store crops that are detected as fall
 
-        # Process each detection with confidence > 0.5
         for idx, row in df.iterrows():
             if row['confidence'] > 0.5:
                 x1 = int(row['xmin'])

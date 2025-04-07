@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-app.py
+video-detector.py
 
 A simple script for fall detection from a video file on an edge device.
 It loads a local YOLOv5 model (yolov5s.pt) for person detection and a quantized TFLite model
@@ -18,7 +18,7 @@ import time
 import os
 import certifi
 
-# Set SSL certificate file (if needed)
+
 os.environ['SSL_CERT_FILE'] = certifi.where()
 
 # -------------------------------
@@ -76,17 +76,14 @@ def load_yolo_model(pt_path):
 # Main Fall Detection from Video with Frame Skipping
 # -------------------------------
 def main():
-    # Update these paths with the correct absolute paths on your device
     tflite_model_path = "Fall-detector-lite.tflite"
     yolov5_pt_path = "yolov5s.pt"
     video_path = "my-video.mp4"
 
-    # Load models
     interpreter, input_details, output_details = load_tflite_model(tflite_model_path)
     yolo_model = load_yolo_model(yolov5_pt_path)
     pref_size = (128, 128)
 
-    # Open video file
     cap = cv2.VideoCapture(video_path)
     if not cap.isOpened():
         print("Error: Could not open video.")
@@ -99,10 +96,10 @@ def main():
 
     # Parameters for tracking fall detections per second
     fall_by_second = {}
-    last_saved_second = -10  # To enforce gap between captures
+    last_saved_second = -10  # Enforce gap between captures
 
-    # Set skip factor (process every Nth frame)
-    skip_frames = 20  # Adjust this value as needed
+    # Set skip factor
+    skip_frames = 20  
 
     current_frame = 0
 
