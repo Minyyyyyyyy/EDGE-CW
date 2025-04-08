@@ -76,7 +76,7 @@ def load_yolo_model(pt_path):
 # Main Fall Detection from Video with Frame Skipping
 # -------------------------------
 def main():
-    tflite_model_path = "Fall-detector-lite.tflite"
+    tflite_model_path = "Fall-Detector-Lite.tflite"
     yolov5_pt_path = "yolov5s.pt"
     video_path = "my-video.mp4"
 

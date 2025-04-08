@@ -75,7 +75,7 @@ def load_yolo_model(pt_path):
 # Main Real-Time Detection Loop
 # -------------------------------
 def main():
-    tflite_model_path = "Fall-detector-lite.tflite"
+    tflite_model_path = "Fall-Detector-Lite.tflite"
     yolov5_pt_path = "yolov5s.pt"
 
     interpreter, input_details, output_details = load_tflite_model(tflite_model_path)
