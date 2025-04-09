@@ -74,8 +74,8 @@ def load_yolo_model(pt_path):
 # Main Real-Time Detection Loop
 # -------------------------------
 def main():
-    tflite_model_path = "Fall-Detector-Lite.tflite"
-    yolov5_pt_path = "yolov5s.pt"
+    tflite_model_path = "EDGE-CW/detection-model/Fall-Detector-Lite.tflite"
+    yolov5_pt_path = "EDGE-CW/detection-model/yolov5s.pt"
 
     interpreter, input_details, output_details = load_tflite_model(tflite_model_path)
     pref_size = (128, 128)
