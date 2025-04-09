@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 video-detector.py
 
@@ -89,14 +88,13 @@ def main():
         print("Error: Could not open video.")
         return
 
-    # Get video frames per second (fps)
     fps = cap.get(cv2.CAP_PROP_FPS)
     if fps <= 0:
         fps = 25
 
     # Parameters for tracking fall detections per second
     fall_by_second = {}
-    last_saved_second = -10  # Enforce gap between captures
+    last_saved_second = -10  
 
     # Set skip factor
     skip_frames = 20  

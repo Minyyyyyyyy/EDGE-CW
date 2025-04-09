@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 real-time detector.py
 
@@ -83,7 +82,6 @@ def main():
 
     yolo_model = load_yolo_model(yolov5_pt_path)
 
-    # Create folder to save fall capture images
     capture_dir = "fall_captures"
     if not os.path.exists(capture_dir):
         os.makedirs(capture_dir)
@@ -112,7 +110,7 @@ def main():
         results = yolo_model(pil_img, size=640)
         df = results.pandas().xyxy[0]
         fall_detected_in_frame = False
-        fall_crops = []  # To store crops that are detected as fall
+        fall_crops = [] 
 
         for idx, row in df.iterrows():
             if row['confidence'] > 0.5:
@@ -128,7 +126,6 @@ def main():
                 pred, raw_output = classify_crop_tflite(crop, interpreter, input_details, output_details, pref_size)
                 print(f"Raw output: {raw_output}, Predicted class: {pred}")
 
-                # If predicted class 0 (Fall Detected), mark frame as fall and store crop
                 if pred == 0:
                     fall_detected_in_frame = True
                     fall_crops.append(crop)
@@ -136,7 +133,6 @@ def main():
                 else:
                     label_text = "Non-Fall"
 
-                # Draw bounding box and label on the frame
                 cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
                 cv2.putText(frame, label_text, (x1, y1 - 10),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
