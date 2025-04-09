@@ -93,77 +93,67 @@ def main():
 
     print("Starting real-time fall detection. Press 'q' to exit.")
 
-    # Counter for consecutive frames with fall detection
     consecutive_fall_frames = 0
 
     while True:
+        # Read a single frame from the camera
         ret, frame = cap.read()
         if not ret:
             print("Error: Unable to read frame from camera.")
             break
-
-        # Convert frame to RGB and then to PIL image (required for YOLO)
+        # Convert frame from BGR to RGB for YOLOv5 compatibility, then to PIL
         frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         pil_img = Image.fromarray(frame_rgb)
-        
-        # Run YOLOv5 detection; using size=640 for detection
+
         results = yolo_model(pil_img, size=640)
         df = results.pandas().xyxy[0]
         fall_detected_in_frame = False
-        fall_crops = [] 
 
         for idx, row in df.iterrows():
             if row['confidence'] > 0.5:
-                x1 = int(row['xmin'])
-                y1 = int(row['ymin'])
-                x2 = int(row['xmax'])
-                y2 = int(row['ymax'])
-                crop = frame[y1:y2, x1:x2]
+                x1, y1 = int(row['xmin']), int(row['ymin'])
+                x2, y2 = int(row['xmax']), int(row['ymax'])
+                crop = frame[y1:y2, x1:x2] # Crop the person region from the frame
                 if crop.size == 0:
                     continue
 
-                # Classify the cropped region using the TFLite model
                 pred, raw_output = classify_crop_tflite(crop, interpreter, input_details, output_details, pref_size)
+                confidence = raw_output[0][pred]
                 print(f"Raw output: {raw_output}, Predicted class: {pred}")
 
                 if pred == 0:
                     fall_detected_in_frame = True
-                    fall_crops.append(crop)
-                    label_text = "Fall Detected"
+                    label_text = f"Fall Detected {confidence:.2f}"
                 else:
-                    label_text = "Non-Fall"
+                    label_text = f"Non-Fall {confidence:.2f}"
 
+                # Draw bounding box and label on the frame
                 cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
                 cv2.putText(frame, label_text, (x1, y1 - 10),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
 
-        # Check if the current frame had any fall detections
         if fall_detected_in_frame:
             consecutive_fall_frames += 1
+            print("Fall detected in current frame!")
         else:
             consecutive_fall_frames = 0
 
-        # If 3 consecutive frames have fall detections, save the crops from the current frame
+        # Save full frame if 3 consecutive fall frames are detected
         if consecutive_fall_frames >= 3:
             timestamp = time.localtime()
-            formatted_time = time.strftime("%m-%d %H:%M:%S", timestamp)
-            for i, crop in enumerate(fall_crops):
-                save_path = os.path.join(capture_dir, f"fall_{formatted_time}_{i}.jpg")
-                cv2.imwrite(save_path, crop)
-                print(f"Saved fall capture: {save_path}")
-            # Reset counter to avoid repeated captures for the same event
+            formatted_time = time.strftime("%Y-%m-%d_%H-%M-%S", timestamp)
+            save_path = os.path.join(capture_dir, f"fall_frame_{formatted_time}.jpg")
+            cv2.imwrite(save_path, frame)
+            print(f"[ALERT] Fall confirmed! Screenshot saved: {save_path}")
             consecutive_fall_frames = 0
 
-        if fall_detected_in_frame:
-            print("Fall detected in current frame!")
-        
         cv2.imshow("Real-Time Fall Detection", frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
     cap.release()
     cv2.destroyAllWindows()
-
+    
 if __name__ == "__main__":
     main()
 
