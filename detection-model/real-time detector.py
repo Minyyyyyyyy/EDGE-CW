@@ -123,9 +123,9 @@ def main():
 
                 if pred == 0:
                     fall_detected_in_frame = True
-                    label_text = f"Fall Detected {confidence:.2f}"
+                    label_text = f"Fall Detected"
                 else:
-                    label_text = f"Non-Fall {confidence:.2f}"
+                    label_text = f"Non-Fall Detected"
 
                 # Draw bounding box and label on the frame
                 cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
