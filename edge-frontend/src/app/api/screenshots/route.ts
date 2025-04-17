@@ -96,9 +96,8 @@ export async function GET() {
           id: item.Key,
           url,
           timestamp: item.LastModified ? new Date(item.LastModified).toLocaleString() : '',
-          // Every uploaded image represents a fall for this demo
           fallDetected: true,
-          location: 'Unknown',
+          location: 'Camera 1',
         };
       });
     }

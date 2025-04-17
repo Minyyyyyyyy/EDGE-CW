@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { RefreshCw, AlertTriangle, CheckCircle, Clock, Map, Camera, Info } from 'lucide-react';
+import { RefreshCw, AlertTriangle, CheckCircle, Clock, Map, Camera, Info, Filter } from 'lucide-react';
 
 export default function Home() {
   const [selectedImage, setSelectedImage] = useState<any>(null);
@@ -18,10 +18,12 @@ export default function Home() {
       const res = await fetch('/api/screenshots');
       const data = await res.json();
       if (data.screenshots && data.screenshots.length > 0) {
-        setImages(data.screenshots);
-        setSelectedImage(data.screenshots[0]);
-        setFallDetected(data.screenshots[0].fallDetected);
-        setTimestamp(data.screenshots[0].timestamp);
+        // Sort images by timestamp to show latest first
+        const sortedImages = data.screenshots.sort((a: any, b: any) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+        setImages(sortedImages);
+        setSelectedImage(sortedImages[0]);
+        setFallDetected(sortedImages[0].fallDetected);
+        setTimestamp(sortedImages[0].timestamp);
       } else {
         setImages([]);
         setSelectedImage(null);
@@ -143,7 +145,7 @@ export default function Home() {
               )}
             </div>
 
-            {/* Gallery */}
+            {/* Image Gallery with hover effect */}
             <div className="mt-6 bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-700">
               <div className="p-4 font-medium border-b border-gray-700 bg-gray-900 flex justify-between items-center">
                 <span className="text-gray-200 font-semibold">Recent Detections</span>
@@ -180,7 +182,7 @@ export default function Home() {
                           <img
                             src={image.url}
                             alt={`Detection at ${image.timestamp}`}
-                            className="w-full aspect-video object-cover"
+                            className="w-full aspect-video object-cover transition-transform transform group-hover:scale-105"
                           />
                           {image.fallDetected && (
                             <div className="absolute top-2 right-2">
@@ -194,6 +196,8 @@ export default function Home() {
                         <div className="p-2 bg-gray-900">
                           <div className="text-xs font-medium text-gray-300 truncate">{image.location}</div>
                           <div className="text-xs text-gray-400 truncate">{image.timestamp}</div>
+                          {/* Show the label below the image */}
+                          <div className="text-xs text-gray-500">{image.label}</div>
                         </div>
                       </div>
                     ))}
