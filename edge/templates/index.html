@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Fall Detection Monitor</title>
+    <style>
+        video, img { max-width: 100%; }
+        .alert { color: red; font-size: 24px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>Live Fall Detection Feed</h1>
+    <img src="{{ url_for('video_feed') }}" id="video">
+    <div class="alert" id="alertBox">Status: No Fall Detected</div>
+
+    <script>
+        // You can fetch alerts via another endpoint if needed
+        setInterval(() => {
+            fetch('/alert').then(res => res.json()).then(data => {
+                document.getElementById('alertBox').textContent = 
+                    "Status: " + (data.fall ? "Fall Detected!" : "No Fall Detected");
+            });
+        }, 1000);
+    </script>
+</body>
+</html>
